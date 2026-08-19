@@ -871,6 +871,18 @@ class Celery:
         options = router.route(
             options, route_name or name, args, kwargs, task_type)
 
+        # if time_limit or soft_time_limit is None, get options from
+        # CELERY_ROUTER (all our route have options for time_limit and soft_time limit)
+        if time_limit is None:
+            time_limit = options.pop("time_limit", None)
+        else:
+            options.pop("time_limit", None)
+        if soft_time_limit is None:
+            soft_time_limit = options.pop("soft_time_limit", None)
+        else:
+            options.pop("soft_time_limit", None)
+        options.pop('expires', None)
+
         driver_type = self.producer_pool.connections.connection.transport.driver_type
 
         if (eta or countdown) and detect_quorum_queues(self, driver_type)[0]:
